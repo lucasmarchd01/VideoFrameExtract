@@ -1,12 +1,19 @@
 # This code extracts frames from a video file.
 
 import cv2
+import os
 
-vidcap = cv2.VideoCapture('big_buck_bunny_720p_5mb.mp4')
+videofile = "GH010067"
+filepath = "C:\\Users\\Lucas March\\Video Images\\GH010067"
+vidcap = cv2.VideoCapture("C:\\Users\\Lucas March\\Videos\\gh010067-1.mp4")
+
+
 success,image = vidcap.read()
-count = 0
+time = 0
+os.chdir(filepath)
+print("Extracting images in: " + filepath)
 while success:
-  cv2.imwrite("frame%d.jpg" % count, image)     # save frame as JPEG file      
+  cv2.imwrite(videofile + "@t=%.3f.jpg" % time, image)     # save frame as JPEG file      
   success,image = vidcap.read()
   print('Read a new frame: ', success)
-  count += 1
+  time += 1/15
