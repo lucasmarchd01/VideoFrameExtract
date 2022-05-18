@@ -3,6 +3,7 @@
 
 import os
 import csv
+from natsort import natsorted
 
 
 
@@ -13,7 +14,7 @@ with open(directory + "\\" + videoName + ".csv", "w", newline="") as f:
     writer = csv.writer(f)
     writer.writerow(['fileName', 'Time Recorded', 'Phase', 'Folder'])
 
-    for image in os.listdir(directory):
+    for image in natsorted(os.listdir(directory)):
         if image.endswith('.jpg'):
             imageSplit = image.removesuffix(".jpg")
             imageSplit = imageSplit.split("@t=")
