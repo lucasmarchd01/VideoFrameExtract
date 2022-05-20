@@ -7,17 +7,17 @@ from natsort import natsorted
 
 
 
-directory = "C:\\Users\\Lucas March\\Video Images\\GH010067"
-videoName = "GH010067"
+directory = "C:\\Users\\Lucas March\\Video Images\\Training\\GH010020"
+videoName = "GH010020_Labels"
 
 with open(directory + "\\" + videoName + ".csv", "w", newline="") as f:
     writer = csv.writer(f)
-    writer.writerow(['fileName', 'Time Recorded', 'Phase', 'Folder'])
+    writer.writerow(['fileName', 'Time Recorded', 'Step', 'Phase', 'Folder'])
 
     for image in natsorted(os.listdir(directory)):
         if image.endswith('.jpg'):
             imageSplit = image.removesuffix(".jpg")
             imageSplit = imageSplit.split("@t=")
-            writer.writerow([image, imageSplit[-1], None, directory])
+            writer.writerow([image, imageSplit[-1], None, None, directory + "\\"])
     print(videoName + ".csv saved to: " + directory)
 
