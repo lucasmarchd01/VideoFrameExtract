@@ -7,8 +7,8 @@ from natsort import natsorted
 
 
 
-directory = "C:\\Users\\Lucas March\\Video Images\\Training\\GH010020"
-videoName = "GH010020_Labels"
+directory = "C:\\Users\\Lucas March\\Video Images\\Training\\GH010065"
+videoName = "GH010065_Labels"
 
 with open(directory + "\\" + videoName + ".csv", "w", newline="") as f:
     writer = csv.writer(f)
