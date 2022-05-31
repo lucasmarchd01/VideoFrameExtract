@@ -3,9 +3,9 @@
 import cv2
 import os
 
-videofile = "GH010065"
-filepath = "C:\\Users\\Lucas March\\Video Images\\Training\\GH010065"
-vidcap = cv2.VideoCapture("C:\\Users\\Lucas March\\Videos\\Gh010065-1.mp4")
+videofile = "GH010091"
+filepath = "C:\\Users\\Lucas March\\Video Images\\Training\\GH010091"
+vidcap = cv2.VideoCapture("C:\\Users\\Lucas March\\Videos\\Gh010091-1.mp4")
 
 
 success,image = vidcap.read()
