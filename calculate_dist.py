@@ -1,5 +1,6 @@
 import csv
 import argparse
+from itertools import count
 import os
 import glob
 import math
@@ -76,23 +77,23 @@ def find_min(objects):
     for r in resection:
         find_midpoints(r)
     if len(cautery) != 1:
-        print("There must be only one cautery tool in frame. Discarding...")
+        #print("There must be only one cautery tool in frame. Discarding...")
         return None
     elif len(resection) != 1:
-        print("There must be only one resection margin in frame. Discarding...")
+        #print("There must be only one resection margin in frame. Discarding...")
         return None
     else:
  
         cautery = cautery[0]
         resection = resection[0]
         corner_count = 0
-        min = -1
+        min = 9999999
         for cor in cautery['corners']:
             midpoint_count = 0
             for mid in resection['midpoints']:
                 #calculate distance
                 d = math.dist(cor, mid)
-                if d > min:
+                if d < min:
                     min_cor = corner_count
                     min_mid = midpoint_count
                     min = d
@@ -105,9 +106,8 @@ def find_min(objects):
 def identify_point(p):
     corners = ['upper_left', 'upper_right', 'lower_left', 'lower_right']
     midpoints = ['upper', 'lower', 'left', 'right']
-    print(p)
     location = (corners[p[0]], midpoints[p[1]])
-    print("Cautery: " + location[0] + "\nResection Margin: " + location[1])
+    return location
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -123,12 +123,25 @@ if __name__ == "__main__":
     #os.chdir("C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\Imagelabelling\\Images")
     myFiles = natsorted(glob.glob("*.txt"))
 
-
+    counter = 0
+    save = [[],[]]
     for text_file in myFiles:
-        print("working in file: " + text_file)
+        #print("working in file: " + text_file)
         obj = object_info(text_file)
         if obj:
             min = find_min(obj)
             if min:
-                identify_point(min)
+                location = identify_point(min)
+                #print("Cautery: " + location[0] + "\nResection Margin: " + location[1])
+                save[0].append(location[0])
+                save[1].append(location[1])
+        if counter % 2 == 0 and counter != 0:
+            if len(save[0]) != 0 and len(save[1]) != 0:
+                print("\nat file " + text_file)
+                print("Highest occurence (corner): " + str(max(save[0], key=save[0].count)))
+                print("Highest occurence (edge): " + str(max(save[1], key=save[1].count)))
+                save = [[],[]]
+        counter += 1
+            
+
             
