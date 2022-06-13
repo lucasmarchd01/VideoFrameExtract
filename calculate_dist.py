@@ -3,6 +3,7 @@ import argparse
 import os
 import glob
 import math
+from natsort import natsorted
 
 
 
@@ -15,7 +16,6 @@ def object_info(txt_file):
         else:
             linelist = [line.rstrip() for line in f]
             objects = []
-            print(linelist)
             for line in linelist: 
                 temp_dict = {}
                 properties = line.split()
@@ -75,11 +75,11 @@ def find_min(objects):
         find_corners(c)
     for r in resection:
         find_midpoints(r)
-    if len(cautery) > 1:
-        print("More than one cautery tool. Discarding...")
+    if len(cautery) != 1:
+        print("There must be only one cautery tool in frame. Discarding...")
         return None
-    elif len(resection) >1:
-        print("More than one resection margin. Discarding...")
+    elif len(resection) != 1:
+        print("There must be only one resection margin in frame. Discarding...")
         return None
     else:
  
@@ -96,9 +96,6 @@ def find_min(objects):
                     min_cor = corner_count
                     min_mid = midpoint_count
                     min = d
-                #save
-
-
                 midpoint_count += 1
             corner_count += 1
         
@@ -122,13 +119,16 @@ if __name__ == "__main__":
 
     FLAGS = parser.parse_args()
 
-    #os.chdir(FLAGS.directory)
-    os.chdir("C:\\Users\\Lucas\\dev\\dist_test")
-    myFiles = glob.glob("*.txt")
+    os.chdir(FLAGS.directory)
+    #os.chdir("C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\Imagelabelling\\Images")
+    myFiles = natsorted(glob.glob("*.txt"))
+
 
     for text_file in myFiles:
+        print("working in file: " + text_file)
         obj = object_info(text_file)
-        if obj is not None:
+        if obj:
             min = find_min(obj)
-            identify_point(min)
+            if min:
+                identify_point(min)
             
