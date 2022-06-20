@@ -4,6 +4,7 @@ from itertools import count
 import os
 import glob
 import math
+import pandas
 from natsort import natsorted
 
 
@@ -37,11 +38,11 @@ def find_corners(object):
     y_cen = object['y_center']
     w = object['width']
     h = object['height']
-    upper_left = (x_cen - 0.5*w, y_cen + 0.5*h)
-    upper_right = (x_cen + 0.5*w, y_cen + 0.5*h)
-    lower_left = (x_cen - 0.5*w, y_cen - 0.5*h)
-    lower_right = (x_cen + 0.5*w, y_cen - 0.5*h)
-    corners = [upper_left, upper_right, lower_left, lower_right]
+    upper_left = (x_cen - 0.5*w, y_cen - 0.5*h)
+    upper_right = (x_cen + 0.5*w, y_cen - 0.5*h)
+    lower_left = (x_cen - 0.5*w, y_cen + 0.5*h)
+    lower_right = (x_cen + 0.5*w, y_cen + 0.5*h)
+    corners = (upper_left, upper_right, lower_left, lower_right)
     object['corners'] = corners
     return object 
     
@@ -53,11 +54,11 @@ def find_midpoints(object):
     y_cen = object['y_center']
     w = object['width']
     h = object['height']
-    upper = (x_cen, y_cen + 0.5*h)
-    lower = (x_cen, y_cen - 0.5*h)
+    upper = (x_cen, y_cen - 0.5*h)
+    lower = (x_cen, y_cen + 0.5*h)
     left = (x_cen - 0.5*w, y_cen)
     right = (x_cen + 0.5*w, y_cen)
-    midpoints = [upper, lower, left, right]
+    midpoints = (upper, lower, left, right)
     object['midpoints'] = midpoints
     return object
 
@@ -109,6 +110,13 @@ def identify_point(p):
     location = (corners[p[0]], midpoints[p[1]])
     return location
 
+def save_results(textfile, loc):
+    os.chdir(FLAGS.save_results)
+    with open("localization_results.csv", 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([text_file, loc[0], loc[1]])
+    os.chdir(FLAGS.directory)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -117,31 +125,48 @@ if __name__ == "__main__":
         default="",
         help="Name of the directory where .txt files are saved")
 
+    parser.add_argument(
+        '--save_results',
+        type=str,
+        default='',
+        help='save results to csv'
+    )
+
     FLAGS = parser.parse_args()
 
     os.chdir(FLAGS.directory)
-    #os.chdir("C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\Imagelabelling\\Images")
+    #os.chdir("C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\yolov5\\runs\\detect\\exp19\\labels")
     myFiles = natsorted(glob.glob("*.txt"))
+    
+    
+    if FLAGS.save_results != '':
+        os.chdir(FLAGS.save_results)
+        if not os.path.exists("localization_results.csv"):
+            with open("localization_results.csv", 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['file', 'cautery', 'resection margin'])
 
+    
+    os.chdir(FLAGS.directory)
     counter = 0
     save = [[],[]]
     for text_file in myFiles:
-        #print("working in file: " + text_file)
+        print("working in file: " + text_file)
         obj = object_info(text_file)
         if obj:
             min = find_min(obj)
             if min:
                 location = identify_point(min)
-                #print("Cautery: " + location[0] + "\nResection Margin: " + location[1])
+                print("Cautery: " + location[0] + "\nResection Margin: " + location[1])
+                if FLAGS.save_results != '':
+                    save_results(text_file, location)
+
                 save[0].append(location[0])
                 save[1].append(location[1])
-        if counter % 2 == 0 and counter != 0:
+        if counter % 5 == 0 and counter != 0:
             if len(save[0]) != 0 and len(save[1]) != 0:
                 print("\nat file " + text_file)
                 print("Highest occurence (corner): " + str(max(save[0], key=save[0].count)))
                 print("Highest occurence (edge): " + str(max(save[1], key=save[1].count)))
                 save = [[],[]]
         counter += 1
-            
-
-            
