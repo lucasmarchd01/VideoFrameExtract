@@ -114,7 +114,7 @@ def save_results(textfile, loc):
     os.chdir(FLAGS.save_results)
     with open("localization_results.csv", 'a', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow([text_file, loc[0], loc[1]])
+        writer.writerow([text_file, loc[0], loc[1], loc[0]+'/'+loc[1]])
     os.chdir(FLAGS.directory)
 
 if __name__ == "__main__":
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         if not os.path.exists("localization_results.csv"):
             with open("localization_results.csv", 'w', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow(['file', 'cautery', 'resection margin', ])
+                writer.writerow(['file', 'cautery', 'resection margin', 'cautery/resection'])
 
     
     os.chdir(FLAGS.directory)
@@ -164,9 +164,9 @@ if __name__ == "__main__":
                 save[0].append(location[0])
                 save[1].append(location[1])
             else:
-                save_results(text_file, [None, None])
+                save_results(text_file, ['None', 'None'])
         else:
-            save_results(text_file, [None, None])
+            save_results(text_file, ['None', 'None'])
         if counter % 5 == 0 and counter != 0:
             if len(save[0]) != 0 and len(save[1]) != 0:
                 print("\nat file " + text_file)
