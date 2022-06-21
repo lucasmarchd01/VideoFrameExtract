@@ -22,8 +22,8 @@ def fun1():
     data.to_csv("GH010064444_Labels.csv", index=False)
 
 def fun2():
-    labelspath = "C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\yolov5\\runs\\detect\\gh010054_detect\\labels\\"
-    imagespath = "C:\\Users\\Lucas\\Video Images\\Training\\GH010054"
+    labelspath = "C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\yolov5\\runs\\detect\\gh010056_detect\\labels\\"
+    imagespath = "C:\\Users\\Lucas\\Video Images\\Training\\GH010056"
     os.chdir(imagespath)
     for image in natsorted(os.listdir(imagespath)):
         if not os.path.exists(labelspath + image.replace(".jpg", ".txt")) and image.endswith(".jpg"):
