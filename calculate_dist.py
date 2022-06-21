@@ -144,7 +144,7 @@ if __name__ == "__main__":
         if not os.path.exists("localization_results.csv"):
             with open("localization_results.csv", 'w', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow(['file', 'cautery', 'resection margin'])
+                writer.writerow(['file', 'cautery', 'resection margin', ])
 
     
     os.chdir(FLAGS.directory)
@@ -163,6 +163,10 @@ if __name__ == "__main__":
 
                 save[0].append(location[0])
                 save[1].append(location[1])
+            else:
+                save_results(text_file, [None, None])
+        else:
+            save_results(text_file, [None, None])
         if counter % 5 == 0 and counter != 0:
             if len(save[0]) != 0 and len(save[1]) != 0:
                 print("\nat file " + text_file)
