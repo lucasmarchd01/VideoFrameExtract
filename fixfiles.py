@@ -22,8 +22,8 @@ def fun1():
     data.to_csv("GH010064444_Labels.csv", index=False)
 
 def fun2():
-    labelspath = "C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\yolov5\\runs\\detect\\gh010081_detect\\labels\\"
-    imagespath = "C:\\Users\\Lucas\\Video Images\\Training\\GH010081"
+    labelspath = "C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\yolov5\\runs\\detect\\exp26\\labels\\"
+    imagespath = "C:\\Users\\Lucas\\Video Images\\Testing"
     os.chdir(imagespath)
     for image in natsorted(os.listdir(imagespath)):
         if not os.path.exists(labelspath + image.replace(".jpg", ".txt")) and image.endswith(".jpg"):
@@ -32,8 +32,8 @@ def fun2():
             f.close()
 
 def fun3():
-    file1 = "C:\\Users\\Lucas\\Video Images\\Training\\GH010081\\GH010081_Labels.csv"
-    file2 = "C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\yolov5\\runs\\detect\\gh010081_detect\\labels\\localization_results.csv"
+    file1 = "C:\\Users\\Lucas\\Video Images\\Data\\AllVideo_Labels.csv"
+    file2 = "C:\\Users\\Lucas\\Video Images\\Data\\localization_results.csv"
     df1 = pd.read_csv(file1)
     df2 = pd.read_csv(file2)
     df3 = pd.DataFrame()
@@ -42,9 +42,26 @@ def fun3():
     df3["Step"] = df1["Step"]
     df3["Localization"] = df2["cautery/resection"]
     df4 = pd.crosstab(df3["Step"], df3["Localization"], margins=True, normalize=True)
-    df3.to_csv("C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\yolov5\\runs\\detect\\gh010081_detect\\labels\\GH010081_Compare.csv")
-    df4.to_csv("C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\yolov5\\runs\\detect\\gh010081_detect\\labels\\GH010081_Table.csv")
+    df3.to_csv("C:\\Users\\Lucas\\Video Images\\Data\\AllVideo_Compare.csv")
+    df4.to_csv("C:\\Users\\Lucas\\Video Images\\Data\\AllVideo_Table.csv")
+
+def fun4():
+    path = "C:\\Users\\Lucas\\Video Images\\Data"
+    os.chdir(path)
+    newdf = pd.DataFrame(columns=["FileName", "Time Recorded", "Step", "Phase", "Folder"])
+    for file in natsorted(os.listdir(path)):
+        df = pd.read_csv(file)
+        newdf = pd.concat([newdf, df], axis=0, ignore_index=True)
+    newdf.to_csv(path + "AllVideo_Labels.csv")
+
+def fun5():
+    csv = "C:\\Users\\Lucas\\Video Images\\Data\\AllVideo_Compare.csv"
+    compare = pd.read_csv(csv)
+    compare = compare[(compare.Step != "Transition") & (compare.Step != "iKnife") & (compare.Step != "Surgery")]
+    df4 = pd.crosstab(compare["Step"], compare["Localization"], margins=True, normalize=True)
+    compare.to_csv("C:\\Users\\Lucas\\Video Images\\Data\\OnlyLocal_Compare.csv")
+    df4.to_csv("C:\\Users\\Lucas\\Video Images\\Data\\OnlyLocal_Table.csv")
 
 
 if __name__ == "__main__":
-    fun2()
+    fun5()

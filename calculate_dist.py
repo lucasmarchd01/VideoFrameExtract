@@ -9,6 +9,10 @@ from natsort import natsorted
 
 
 
+def __init__(self):
+    self.txtdir = None
+    self.savecsv = False
+
 def object_info(txt_file):
     """Read text files in folder and extract object information """
 
@@ -26,9 +30,10 @@ def object_info(txt_file):
                 temp_dict["y_center"] = float(properties[2])
                 temp_dict["width"] = float(properties[3])
                 temp_dict["height"] = float(properties[4])
+                temp_dict["confidence"] = float(properties[5])
                 objects.append(temp_dict)
     
-            return objects
+    return objects
 
 
 def find_corners(object):
@@ -66,42 +71,54 @@ def find_midpoints(object):
 def find_min(objects):
     """Calculate shortest distance from cautery corner to resection
     margin midpoint"""
-    cautery = []
-    resection = []
+    cauteries = []
+    resections = []
     for obj in objects:
         if obj['cls'] == '0':
-            cautery.append(obj)
+            cauteries.append(obj)
         elif obj['cls'] == '1':
-            resection.append(obj)
-    for c in cautery:
-        find_corners(c)
-    for r in resection:
-        find_midpoints(r)
-    if len(cautery) != 1:
-        #print("There must be only one cautery tool in frame. Discarding...")
-        return None
-    elif len(resection) != 1:
-        #print("There must be only one resection margin in frame. Discarding...")
+            resections.append(obj)
+    if len(cauteries) > 1: # if more than one cautery use one  with highest confidence
+        max = 0
+        for c in cauteries:
+            n = c["confidence"]
+            if n >= max:
+                max = n
+                cautery = c
+    elif len(cauteries) == 0:
         return None
     else:
- 
-        cautery = cautery[0]
-        resection = resection[0]
-        corner_count = 0
-        min = 9999999
-        for cor in cautery['corners']:
-            midpoint_count = 0
-            for mid in resection['midpoints']:
-                #calculate distance
-                d = math.dist(cor, mid)
-                if d < min:
-                    min_cor = corner_count
-                    min_mid = midpoint_count
-                    min = d
-                midpoint_count += 1
-            corner_count += 1
-        
-        return (min_cor, min_mid)
+        cautery = cauteries[0]
+    if len(resections) > 1: # if more than one resection use one with highest confidence
+        max = 0
+        for r in resections:
+            n = r["confidence"]
+            if n >= max:
+                max = n
+                resection = r
+    elif len(resections) == 0:
+        return None
+    else:
+        resection = resections[0]
+    
+    resection = find_midpoints(resection)
+    cautery = find_corners(cautery)
+
+    corner_count = 0
+    min = 9999999
+    for cor in cautery['corners']:
+        midpoint_count = 0
+        for mid in resection['midpoints']:
+            #calculate distance
+            d = math.dist(cor, mid)
+            if d < min:
+                min_cor = corner_count
+                min_mid = midpoint_count
+                min = d
+            midpoint_count += 1
+        corner_count += 1
+    
+    return (min_cor, min_mid)
 
 
 def identify_point(p):
