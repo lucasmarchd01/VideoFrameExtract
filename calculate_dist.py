@@ -118,7 +118,7 @@ def find_min(objects):
             midpoint_count += 1
         corner_count += 1
     
-    return (min_cor, min_mid)
+    return (min_cor, min_mid, min)
 
 
 def identify_point(p):
@@ -127,11 +127,11 @@ def identify_point(p):
     location = (corners[p[0]], midpoints[p[1]])
     return location
 
-def save_results(textfile, loc):
+def save_results(textfile, loc, dist):
     os.chdir(FLAGS.save_results)
-    with open("localization_results.csv", 'a', newline='') as f:
+    with open("localization_results_withdist.csv", 'a', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow([text_file, loc[0], loc[1], loc[0]+'/'+loc[1]])
+        writer.writerow([textfile, loc[0], loc[1], loc[0]+'/'+loc[1], dist])
     os.chdir(FLAGS.directory)
 
 if __name__ == "__main__":
@@ -158,10 +158,10 @@ if __name__ == "__main__":
     
     if FLAGS.save_results != '':
         os.chdir(FLAGS.save_results)
-        if not os.path.exists("localization_results.csv"):
-            with open("localization_results.csv", 'w', newline='') as f:
+        if not os.path.exists("localization_results_withdist.csv"):
+            with open("localization_results_withdist.csv", 'w', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow(['file', 'cautery', 'resection margin', 'cautery/resection'])
+                writer.writerow(['file', 'cautery', 'resection margin', 'cautery/resection', 'distance'])
 
     
     os.chdir(FLAGS.directory)
@@ -176,14 +176,14 @@ if __name__ == "__main__":
                 location = identify_point(min)
                 print("Cautery: " + location[0] + "\nResection Margin: " + location[1])
                 if FLAGS.save_results != '':
-                    save_results(text_file, location)
+                    save_results(text_file, location, min[2])
 
                 save[0].append(location[0])
                 save[1].append(location[1])
             else:
-                save_results(text_file, ['None', 'None'])
+                save_results(text_file, ['None', 'None'], "None")
         else:
-            save_results(text_file, ['None', 'None'])
+            save_results(text_file, ['None', 'None'], "None")
         if counter % 5 == 0 and counter != 0:
             if len(save[0]) != 0 and len(save[1]) != 0:
                 print("\nat file " + text_file)
