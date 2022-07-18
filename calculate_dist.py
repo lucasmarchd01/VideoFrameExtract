@@ -50,6 +50,12 @@ def find_corners(object):
     corners = (upper_left, upper_right, lower_left, lower_right)
     object['corners'] = corners
     return object 
+
+def isRectangleOverlap(R1, R2):
+    if (R1[0]>=R2[2]) or (R1[2]<=R2[0]) or (R1[3]>=R2[1]) or (R1[1]<=R2[3]):
+        return False
+    else:
+        return True
     
 
 def find_midpoints(object):
@@ -102,7 +108,13 @@ def find_min(objects):
         resection = resections[0]
     
     resection = find_midpoints(resection)
+    resection = find_corners(resection)
     cautery = find_corners(cautery)
+    cautery = find_midpoints(cautery)
+
+    r1 = [cautery['corners'][2][0], cautery['corners'][2][0], cautery['corners'][1][0], cautery['corners'][1][1]]
+    r2 = [resection['corners'][2][0], resection['corners'][2][0], resection['corners'][1][0], resection['corners'][1][1]]
+    overlap = isRectangleOverlap(r1, r2)
 
     corner_count = 0
     min = 9999999
@@ -117,6 +129,9 @@ def find_min(objects):
                 min = d
             midpoint_count += 1
         corner_count += 1
+
+    # if overlap:
+    #     min = -abs(min)
     
     return (min_cor, min_mid, min)
 
@@ -129,10 +144,20 @@ def identify_point(p):
 
 def save_results(textfile, loc, dist):
     os.chdir(FLAGS.save_results)
-    with open("localization_results_withdist.csv", 'a', newline='') as f:
+    with open("localization_results_withthreshold.csv", 'a', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow([textfile, loc[0], loc[1], loc[0]+'/'+loc[1], dist])
+        time = str(textfile).split('@t=')
+        time = time[1].removesuffix('.txt')
+        writer.writerow([textfile, float(time), loc[0], loc[1], loc[0]+'/'+loc[1], dist])
     os.chdir(FLAGS.directory)
+
+def save_avg(time, avg):
+    os.chdir(FLAGS.save_results)
+    with open("localization_results_avg_thr.csv", 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([time, avg])
+    os.chdir(FLAGS.directory)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -158,10 +183,15 @@ if __name__ == "__main__":
     
     if FLAGS.save_results != '':
         os.chdir(FLAGS.save_results)
-        if not os.path.exists("localization_results_withdist.csv"):
-            with open("localization_results_withdist.csv", 'w', newline='') as f:
+        if not os.path.exists("localization_results_withthreshold.csv"):
+            with open("localization_results_withthreshold.csv", 'w', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow(['file', 'cautery', 'resection margin', 'cautery/resection', 'distance'])
+                writer.writerow(['file', 'time', 'cautery', 'resection margin', 'cautery/resection', 'distance'])
+
+        if not os.path.exists("localization_results_avg_thr.csv"):
+            with open("localization_results_avg_thr.csv", 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['time', 'avg'])
 
     
     os.chdir(FLAGS.directory)
@@ -173,21 +203,27 @@ if __name__ == "__main__":
         if obj:
             min = find_min(obj)
             if min:
-                location = identify_point(min)
-                print("Cautery: " + location[0] + "\nResection Margin: " + location[1])
-                if FLAGS.save_results != '':
-                    save_results(text_file, location, min[2])
+                if min[2] >= 0.06:
+                    save_results(text_file, ['None', 'None'], "None")
+                else:
+                    location = identify_point(min)
+                    print("Cautery: " + location[0] + "\nResection Margin: " + location[1])
+                    if FLAGS.save_results != '':
+                        save_results(text_file, location, min[2])
 
-                save[0].append(location[0])
-                save[1].append(location[1])
+                    save[0].append(location[0])
+                    save[1].append(location[1])
             else:
                 save_results(text_file, ['None', 'None'], "None")
         else:
             save_results(text_file, ['None', 'None'], "None")
-        if counter % 5 == 0 and counter != 0:
+        if counter % 15 == 0 and counter != 0:
             if len(save[0]) != 0 and len(save[1]) != 0:
                 print("\nat file " + text_file)
                 print("Highest occurence (corner): " + str(max(save[0], key=save[0].count)))
                 print("Highest occurence (edge): " + str(max(save[1], key=save[1].count)))
+                save_avg(counter, str(max(save[1], key=save[1].count)))
                 save = [[],[]]
+            else:
+                save_avg(counter, "None")
         counter += 1

@@ -22,8 +22,8 @@ def fun1():
     data.to_csv("GH010064444_Labels.csv", index=False)
 
 def fun2():
-    labelspath = "C:\\Users\\Lucas\\OneDrive - Queen's University\\Summer Research 2022\\yolov5\\runs\\detect\\exp26\\labels\\"
-    imagespath = "C:\\Users\\Lucas\\Video Images\\Testing"
+    labelspath = "C:\\Users\\Lucas\\Video Images\\67_test\\labels\\"
+    imagespath = "C:\\Users\\Lucas\\Video Images\\Training\\GH010067"
     os.chdir(imagespath)
     for image in natsorted(os.listdir(imagespath)):
         if not os.path.exists(labelspath + image.replace(".jpg", ".txt")) and image.endswith(".jpg"):
@@ -33,7 +33,7 @@ def fun2():
 
 def fun3():
     file1 = "C:\\Users\\Lucas\\Video Images\\Data\\AllVideo_Labels.csv"
-    file2 = "C:\\Users\\Lucas\\Video Images\\Data\\localization_results_withdist.csv"
+    file2 = "C:\\Users\\Lucas\\Video Images\\Data\\localization_results_withnegdist.csv"
     df1 = pd.read_csv(file1)
     df2 = pd.read_csv(file2)
     df3 = pd.DataFrame()
@@ -43,7 +43,7 @@ def fun3():
     df3["Localization"] = df2["cautery/resection"]
     df3["Distance"] = df2["distance"]
     #df4 = pd.crosstab(df3["Step"], df3["Localization"], margins=True, normalize=True)
-    df3.to_csv("C:\\Users\\Lucas\\Video Images\\Data\\AllVideo_Compare_withdist.csv")
+    df3.to_csv("C:\\Users\\Lucas\\Video Images\\Data\\AllVideo_Compare_withnegdist.csv")
     #df4.to_csv("C:\\Users\\Lucas\\Video Images\\Data\\AllVideo_Table.csv")
 
 def fun4():
@@ -56,13 +56,13 @@ def fun4():
     newdf.to_csv(path + "AllVideo_Labels.csv")
 
 def fun5():
-    csv = "C:\\Users\\Lucas\\Video Images\\Data\\AllVideo_Compare_withdist.csv"
+    csv = "C:\\Users\\Lucas\\Video Images\\Data\\AllVideo_Compare_withnegdist.csv"
     compare = pd.read_csv(csv)
     compare = compare[(compare.Step != "Transition") & (compare.Step != "iKnife") & (compare.Localization != "None/None")]
     #df4 = pd.crosstab(compare["Step"], compare["Localization"], margins=True, normalize=True)
-    compare.to_csv("C:\\Users\\Lucas\\Video Images\\Data\\NoNone_Compare_withdist.csv")
+    compare.to_csv("C:\\Users\\Lucas\\Video Images\\Data\\NoNone_Compare_withnegdist.csv")
     #df4.to_csv("C:\\Users\\Lucas\\Video Images\\Data\\NoNone_Table.csv")
 
 
 if __name__ == "__main__":
-    fun5()
+    fun2()
